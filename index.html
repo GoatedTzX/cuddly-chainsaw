@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D Fighter</title>
+    <style> body { margin: 0; } canvas { display: block; } </style>
+</head>
+<body>
+    <!-- This link loads the 3D engine directly in your browser -->
+    <script type="importmap">
+      { "imports": { "three": "https://unpkg.com" } }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+
+        // 1. Setup the Scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 2. Add a Floor
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 10), new THREE.MeshBasicMaterial({color: 0x555555}));
+        floor.rotation.x = -Math.PI / 2;
+        scene.add(floor);
+
+        // 3. Add Player 1 (A Red Box)
+        const player1 = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshBasicMaterial({color: 0xff0000}));
+        player1.position.y = 1;
+        player1.position.x = -3;
+        scene.add(player1);
+
+        camera.position.z = 10;
+        camera.position.y = 3;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
