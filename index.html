@@ -2,39 +2,76 @@
 <html>
 <head>
     <title>3D Fighter</title>
-    <style> body { margin: 0; } canvas { display: block; } </style>
+    <style> body { margin: 0; overflow: hidden; } </style>
 </head>
 <body>
-    <!-- This link loads the 3D engine directly in your browser -->
     <script type="importmap">
       { "imports": { "three": "https://unpkg.com" } }
     </script>
     <script type="module">
         import * as THREE from 'three';
 
-        // 1. Setup the Scene
         const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87ceeb); // Sky blue
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer();
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // 2. Add a Floor
-        const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 10), new THREE.MeshBasicMaterial({color: 0x555555}));
+        // Floor
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshBasicMaterial({color: 0x33aa33}));
         floor.rotation.x = -Math.PI / 2;
         scene.add(floor);
 
-        // 3. Add Player 1 (A Red Box)
-        const player1 = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshBasicMaterial({color: 0xff0000}));
-        player1.position.y = 1;
-        player1.position.x = -3;
+        // --- Roblox-like Character ---
+        const player1 = new THREE.Group();
+        const mat = new THREE.MeshBasicMaterial({color: 0xff0000}); // Red color
+
+        // Body parts (Roblox style proportions)
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), mat);
+        head.position.y = 1.6;
+        
+        const torso = new THREE.Mesh(new THREE.BoxGeometry(1, 1.2, 0.5), mat);
+        torso.position.y = 0.75;
+        
+        const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 0.4), mat);
+        rArm.position.set(0.7, 0.75, 0);
+        
+        const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 0.4), mat);
+        lArm.position.set(-0.7, 0.75, 0);
+
+        const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 0.4), mat);
+        rLeg.position.set(0.25, -0.4, 0);
+
+        const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 0.4), mat);
+        lLeg.position.set(-0.25, -0.4, 0);
+
+        player1.add(head, torso, rArm, lArm, rLeg, lLeg);
+        player1.position.y = 1.2;
         scene.add(player1);
 
-        camera.position.z = 10;
-        camera.position.y = 3;
+        camera.position.set(0, 5, 10);
+        camera.lookAt(player1.position);
+
+        // --- Movement Controls ---
+        const keys = {};
+        window.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
+        window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
 
         function animate() {
             requestAnimationFrame(animate);
+            
+            // Movement Logic
+            const speed = 0.1;
+            if (keys['w']) player1.position.z -= speed;
+            if (keys['s']) player1.position.z += speed;
+            if (keys['a']) player1.position.x -= speed;
+            if (keys['d']) player1.position.x += speed;
+
+            // Make camera follow player
+            camera.position.x = player1.position.x;
+            camera.lookAt(player1.position);
+
             renderer.render(scene, camera);
         }
         animate();
